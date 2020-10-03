@@ -1,3 +1,2 @@
-docker-plugin
-docker-slaves
+docker
 github-branch-source:1.8

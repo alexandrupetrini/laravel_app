@@ -1,0 +1,70 @@
+version: "3.4"
+
+services:
+  nginx:
+    image: "nginx:1.18.0-alpine"
+    restart: always
+    ports:
+      - "80:8181"
+      - "443:8143"
+    volumes:
+      - ./Docker/nginx/certs:/nginx-certs:ro
+      - ./Docker/nginx/vhosts/my_server_block_http_https.conf:/etc/nginx/conf.d/my_server_block_http_https.conf:ro
+    depends_on:
+      - app
+    networks:
+      - app-tier
+
+  app:
+    tty: true
+    image: "alexandrupetrini/php:7.4-fpm-alpine"
+    restart: always
+    build:
+      context: ./Docker/app
+      args:
+        - PHP_ENV=production # or production
+    volumes:
+      - ./Docker/app/php/zz-docker-php.ini:/usr/local/etc/php/conf.d/zz-docker-php.ini:ro
+      - ./Docker/app/opcache/zz-docker-opcache.ini:/usr/local/etc/php/conf.d/zz-docker-opcache.ini:ro
+      - .:/app
+    networks:
+      - app-tier
+
+  mariadb:
+    image: "mariadb:10.5"
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=lararoot
+      - MYSQL_DATABASE=laravel
+      - MYSQL_USER=laraveluser
+      - MYSQL_PASSWORD=wJk7h^*&HDU2Kf
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - app-tier
+
+  phpmyadmin:
+    image: "phpmyadmin:5.0.2-apache"
+    restart: always
+    ports:
+      - "8181:80"
+      - "8443:443"
+    depends_on:
+      - mariadb
+    environment:
+      - PMA_PORT=3306
+      - PMA_HOST=mariadb
+    volumes_from:
+      - mariadb
+    networks:
+      - app-tier
+
+volumes:
+  mariadb_data:
+    driver: local
+
+networks:
+  app-tier:
+    driver: bridge

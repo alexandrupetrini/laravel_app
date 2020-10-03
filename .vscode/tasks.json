@@ -1,0 +1,36 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Open in Tilix",
+      "type": "process",
+      "command": "tilix",
+      "args": ["-a", "app-new-session", "-w", "${cwd}"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "silent",
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Open in Files",
+      "type": "process",
+      "command": "/usr/bin/xdg-open",
+      "args": ["${cwd}"],
+      "presentation": {
+        "echo": false,
+        "reveal": "silent",
+        "panel": "dedicated"
+      },
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    }
+  ]
+}
