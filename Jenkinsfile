@@ -3,31 +3,29 @@ node {
     def app_prod='alexandrupetrini/php:7.4-fpm-alpine-production'
     def app_dev='alexandrupetrini/php:7.4-fpm-alpine-development'
 
-    stages {
 
-        stage('Clone repository') {
-            // git credentialsId: 'github-credentials', url: 'git@github.com:alexandrupetrini/laravel_app.git'
-            checkout scm
-        }
-        stage('Build images') {
-            stage('Build image') {
-                app = docker.build("${app_prod}", "--build-arg PHP_ENV=production ./Docker/app")
-                app = docker.build("${app_prod}", "-f jenkins.Dockerfile --build-arg PHP_ENV=production ./Docker/app")
-            }
-
-            stage('Push image') {
-                docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
-                    app.push()
-                }
-            }
-        }
-        // stage('Deploy containers'){
-        //     stage('Deploy app'){
-        //         app.withRun
-        //     }
-
-        // }
+    stage('Clone repository') {
+        // git credentialsId: 'github-credentials', url: 'git@github.com:alexandrupetrini/laravel_app.git'
+        checkout scm
     }
+    stage('Build images') {
+        stage('Build image') {
+            app = docker.build("${app_prod}", "--build-arg PHP_ENV=production ./Docker/app")
+            app = docker.build("${app_prod}", "-f jenkins.Dockerfile --build-arg PHP_ENV=production ./Docker/app")
+        }
+
+        stage('Push image') {
+            docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
+                app.push()
+            }
+        }
+    }
+    // stage('Deploy containers'){
+    //     stage('Deploy app'){
+    //         app.withRun
+    //     }
+
+    // }
 }
 
 // pipeline {
