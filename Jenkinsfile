@@ -1,25 +1,14 @@
-def app_prod ='alexandrupetrini/php:7.4-fpm-alpine-production'
-def nginx_prod ='alexandrupetrini/nginx:1.18.0-alpine-production'
-def mariadb_prod ='alexandrupetrini/mariadb:10.5-production'
-def phpmyadmin_prod ='alexandrupetrini/phpmyadmin:5.0.2-apache-production'
-def networkName = 'app-network'
-
-def withDockerNetwork(Closure inner) {
-    try {
-        // networkId = UUID.randomUUID().toString()
-        networkName = 'app-network'
-        sh "docker network create ${networkName}"
-        inner.call(networkName)
-    } finally {
-        sh "docker network rm ${networkName}"
-    }
-}
 
 node {
     def app
     def nginx
     def mariadb
     def phpmyadmin
+    def app_prod ='alexandrupetrini/php:7.4-fpm-alpine-production'
+    def nginx_prod ='alexandrupetrini/nginx:1.18.0-alpine-production'
+    def mariadb_prod ='alexandrupetrini/mariadb:10.5-production'
+    def phpmyadmin_prod ='alexandrupetrini/phpmyadmin:5.0.2-apache-production'
+    def networkName = 'app-network'
 
     stage('Clone repository') {
         git credentialsId: 'github-credentials', url: 'git@github.com:alexandrupetrini/laravel_app.git'
@@ -49,12 +38,11 @@ node {
         }
 
         stage('Run images'){
-            withDockerNetwork{ n ->
-                app.withRun("--network ${networkName}") { a ->
-                    sh "composer install"
-                    sh "npm install && npm run dev"
-                    sh "php artisan optimize && php artisan key:generate"
-                }
+            sh "if [ -z \"$(docker network ls -f name=${networkName} -q)\" ]; then docker network create ${networkName}; fi"
+            app.withRun("--network ${networkName}") { a ->
+                sh "composer install"
+                sh "npm install && npm run dev"
+                sh "php artisan optimize && php artisan key:generate"
                 nginx.withRun("-p 80:8081 -p 443:8143 --network ${networkName}")
             }
         }
