@@ -3,10 +3,22 @@ node {
     def nginx
     def mariadb
     def phpmyadmin
-    def app_prod='alexandrupetrini/php:7.4-fpm-alpine-production'
-    def nginx_prod='alexandrupetrini/nginx:1.18.0-alpine-production'
-    def mariadb_prod='alexandrupetrini/mariadb:10.5-production'
-    def phpmyadmin_prod='alexandrupetrini/phpmyadmin:5.0.2-apache-production'
+    def app_prod ='alexandrupetrini/php:7.4-fpm-alpine-production'
+    def nginx_prod ='alexandrupetrini/nginx:1.18.0-alpine-production'
+    def mariadb_prod ='alexandrupetrini/mariadb:10.5-production'
+    def phpmyadmin_prod ='alexandrupetrini/phpmyadmin:5.0.2-apache-production'
+    def networkName = "app-network"
+
+    def withDockerNetwork(Closure inner) {
+        try {
+            // networkId = UUID.randomUUID().toString()
+            // networkName = "app-network"
+            sh "docker network create ${networkName}"
+            inner.call(networkName)
+        } finally {
+            sh "docker network rm ${networkName}"
+        }
+    }
 
     stage('Clone repository') {
         git credentialsId: 'github-credentials', url: 'git@github.com:alexandrupetrini/laravel_app.git'
@@ -33,28 +45,17 @@ node {
                     nginx.push()
                 }
             }
-
-            stage('Build mariadb image') {
-                mariadb = docker.build("${mariadb_prod}", "-f ./Docker/mariadb/jenkins.Dockerfile ./Docker/mariadb")
-            }
-            stage('Push mariadb image') {
-                docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
-                    nginx.push()
-                }
-            }
-
-            stage('Build phpmyadmin image') {
-                phpmyadmin = docker.build("${phpmyadmin_prod}", "-f ./Docker/phpmyadmin/jenkins.Dockerfile ./Docker/phpmyadmin")
-            }
-            stage('Push phpmyadmin image') {
-                docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
-                    nginx.push()
-                }
-            }
         }
 
-        // stage('Run images'){
-
-        // }
+        stage('Run images'){
+            withDockerNetwork{ n ->
+                app.withRun("--network ${networkName}") { a ->
+                    sh "composer install"
+                    sh "npm install && npm run dev"
+                    sh "php artisan optimize && php artisan key:generate"
+                }
+                nginx.withRun("-p 80:8081 -p 443:8143 --network ${networkName}")
+            }
+        }
     }
 }
