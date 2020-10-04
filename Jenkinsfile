@@ -48,9 +48,9 @@ node {
 
         stage('Run images'){
             app.withRun("--network ${networkName}") { a ->
-                sh "composer install"
-                sh "npm install && npm run dev"
-                sh "php artisan optimize && php artisan key:generate"
+                app.inside("""
+                bash -c 'composer install'
+                """)
                 nginx.withRun("-p 80:8081 -p 443:8143 --network ${networkName}")
             }
         }
