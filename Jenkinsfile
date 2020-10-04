@@ -35,26 +35,8 @@ node {
 }
 
 pipeline{
-    agent none
-    stages {
-        stage('build') {
-            agent {
-                docker {
-                    image "${app_prod}"
-                }
-            }
-            steps {
-                sh "composer install"
-                sh "npm install && npm run prod"
-                sh "cp .env.production .env"
-                sh "php artisan key:generate"
-            }
-        }
-        stage('deploy') {
-            agent any
-            steps {
-                sh './deploy.sh'
-            }
-        }
+    agent any
+    steps {
+        sh './deploy.sh'
     }
 }
