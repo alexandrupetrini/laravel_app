@@ -11,28 +11,25 @@ node {
 
     stage("build and deploy laravel_app") {
         stage('Build images'){
-            stage('Build app') {
-                stage('Build image') {
-                    app = docker.build("${app_prod}", "--build-arg PHP_ENV=production ./Docker/app")
-                    app = docker.build("${app_prod}", "--build-arg PHP_ENV=production -f ./Docker/app/jenkins.Dockerfile ./Docker/app")
+            stage('Build app image') {
+                app = docker.build("${app_prod}", "--build-arg PHP_ENV=production ./Docker/app")
+                app = docker.build("${app_prod}", "--build-arg PHP_ENV=production -f ./Docker/app/jenkins.Dockerfile ./Docker/app")
+            }
+            stage('Push app image') {
+                docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
+                    app.push()
                 }
+            }
 
-                stage('Push image') {
-                    docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
-                        app.push()
-                    }
+            stage('Build nginx image') {
+                nginx = docker.build("${nginx_prod}", "-f ./Docker/nginx/jenkins.Dockerfile ./Docker/nginx")
+            }
+            stage('Push nginx image') {
+                docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
+                    nginx.push()
                 }
             }
-            stage('Build nginx'){
-                stage('Build image') {
-                    nginx = docker.build("${nginx_prod}", "-f ./Docker/nginx/jenkins.Dockerfile ./Docker/nginx")
-                }
-                stage('Push image') {
-                    docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
-                        nginx.push()
-                    }
-                }
-            }
+
         }
     }
 }
