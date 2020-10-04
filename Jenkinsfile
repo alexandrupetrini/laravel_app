@@ -45,7 +45,7 @@ node {
             //     sh "npm install && npm run dev"
             //     sh "php artisan optimize && php artisan key:generate"
             //     nginx.withRun("-p 80:8081 -p 443:8143 --network ${networkName}")
-            }
+            // }
         }
     }
 }
