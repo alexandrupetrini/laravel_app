@@ -73,7 +73,7 @@ pipeline{
                 }
             }
             steps {
-                echo done
+                echo 'done'
             }
         }
     }
