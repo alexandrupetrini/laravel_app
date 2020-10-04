@@ -11,7 +11,7 @@ node {
     stage('Build images') {
         stage('Build image') {
             app = docker.build("${app_prod}", "--build-arg PHP_ENV=production ./Docker/app")
-            app = docker.build("${app_prod}", "-f jenkins.Dockerfile --build-arg PHP_ENV=production ./Docker/app")
+            app = docker.build("${app_prod}", "--build-arg PHP_ENV=production -f ./Docker/app/jenkins.Dockerfile")
         }
 
         stage('Push image') {
