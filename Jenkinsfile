@@ -1,9 +1,9 @@
 pipeline {
-    agent none
     def app
     def nginx
     def nginx_prod='alexandrupetrini/nginx:1.18.0-alpine-production'
     def app_prod='alexandrupetrini/php:7.4-fpm-alpine-production'
+
     stages {
         stage('Clone repository') {
             git credentialsId: 'github-credentials', url: 'git@github.com:alexandrupetrini/laravel_app.git'
