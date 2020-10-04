@@ -1,4 +1,4 @@
-pipeline {
+node {
     def app
     def nginx
     def nginx_prod='alexandrupetrini/nginx:1.18.0-alpine-production'
