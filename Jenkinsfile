@@ -16,34 +16,35 @@ node {
     }
 
     stage("build and deploy laravel_app") {
-        stage('Build images'){
-            stage('Build app image') {
-                app = docker.build("${app_prod}", "--build-arg PHP_ENV=production ./Docker/app")
-                app = docker.build("${app_prod}", "--build-arg PHP_ENV=production -f ./Docker/app/jenkins.Dockerfile ./Docker/app")
-            }
-            stage('Push app image') {
-                docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
-                    app.push()
-                }
-            }
+        // stage('Build images'){
+        //     stage('Build app image') {
+        //         app = docker.build("${app_prod}", "--build-arg PHP_ENV=production ./Docker/app")
+        //         app = docker.build("${app_prod}", "--build-arg PHP_ENV=production -f ./Docker/app/jenkins.Dockerfile ./Docker/app")
+        //     }
+        //     stage('Push app image') {
+        //         docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
+        //             app.push()
+        //         }
+        //     }
 
-            stage('Build nginx image') {
-                nginx = docker.build("${nginx_prod}", "-f ./Docker/nginx/jenkins.Dockerfile ./Docker/nginx")
-            }
-            stage('Push nginx image') {
-                docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
-                    nginx.push()
-                }
-            }
-        }
+        //     stage('Build nginx image') {
+        //         nginx = docker.build("${nginx_prod}", "-f ./Docker/nginx/jenkins.Dockerfile ./Docker/nginx")
+        //     }
+        //     stage('Push nginx image') {
+        //         docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
+        //             nginx.push()
+        //         }
+        //     }
+        // }
 
         stage('Run images'){
-            sh 'if [ -z "$(docker network ls -f name=${networkName} -q)" ]; then docker network create ${networkName}; fi'
-            app.withRun("--network ${networkName}") { a ->
-                sh "composer install"
-                sh "npm install && npm run dev"
-                sh "php artisan optimize && php artisan key:generate"
-                nginx.withRun("-p 80:8081 -p 443:8143 --network ${networkName}")
+            def networkCMD="if [ -z \"`docker network ls -f name=${networkName} -q`\" ]; then docker network create ${networkName}; fi"
+            sh "echo ${networkCMD}"
+            // app.withRun("--network ${networkName}") { a ->
+            //     sh "composer install"
+            //     sh "npm install && npm run dev"
+            //     sh "php artisan optimize && php artisan key:generate"
+            //     nginx.withRun("-p 80:8081 -p 443:8143 --network ${networkName}")
             }
         }
     }
