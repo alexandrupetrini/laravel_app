@@ -47,8 +47,18 @@ node {
         }
 
         stage('Run images') {
-            app.with('--name app --network app-network').inside{
-                sh 'php -version'
+            docker.image("${app_prod}").withRun("--network ${networkName} --name app") { c ->
+                docker.image("${app_prod}").inside("--link ${c.id}:db") {
+                    sh 'echo true'
+                }
+                // docker.image("${nginx_prod").inside("--link ${c.id}:db") {
+                //     /*
+                //     * Run some tests which require MySQL, and assume that it is
+                //     * available on the host name `db`
+                //     */
+                //     sh 'make check'
+                // }
+
             }
         }
     }
