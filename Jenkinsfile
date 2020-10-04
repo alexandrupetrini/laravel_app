@@ -5,7 +5,7 @@ node {
 
     stage('Clone repository') {
         /* Let's make sure we have the repository cloned to our workspace */
-        git credentialsId: 'github-credentials', url: 'git@github.com:alexandrupetrini/laravel_app.git'
+        // git credentialsId: 'github-credentials', url: 'git@github.com:alexandrupetrini/laravel_app.git'
 
         checkout scm
     }
