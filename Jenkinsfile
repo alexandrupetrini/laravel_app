@@ -35,8 +35,13 @@ node {
 }
 
 pipeline{
-    agent any
-    steps {
-        sh './deploy.sh'
+    agent none
+    stages {
+        stage('deploy') {
+            agent any
+            steps {
+                sh './deploy.sh'
+            }
+        }
     }
 }
