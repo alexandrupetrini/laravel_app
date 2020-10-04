@@ -10,7 +10,7 @@ pipeline {
             checkout scm
         }
 
-        stage("build and deploy laravel_app) {
+        stage("build and deploy laravel_app") {
             stage('Build images'){
                 parallel{
                     stages {
