@@ -61,6 +61,7 @@ pipeline{
             steps {
                 sh "composer install"
                 sh "npm install && npm run prod"
+                sh "cp .env.production .env"
                 sh "php artisan key:generate"
             }
         }
