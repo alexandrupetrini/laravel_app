@@ -47,9 +47,10 @@ node {
         }
 
         stage('Run images') {
+
             docker.image("${app_prod}").withRun("--network ${networkName} --name app") { c ->
                     sh 'echo true'
-                }
+            }
                 // docker.image("${nginx_prod").inside("--link ${c.id}:db") {
                 //     /*
                 //     * Run some tests which require MySQL, and assume that it is
@@ -57,8 +58,6 @@ node {
                 //     */
                 //     sh 'make check'
                 // }
-
-            }
         }
     }
 }
