@@ -11,18 +11,14 @@ node {
     }
 
     stage('Build image') {
-        /* This builds the actual image; synonymous to
-         * docker build on the command line */
-
         app = docker.build("${app_prod}", "--build-arg PHP_ENV=production ./Docker/app")
     }
 
-    // stage('Push image') {
-    //     docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
-    //         app.push("${env.BUILD_NUMBER}")
-    //         app.push("latest")
-    //     }
-    // }
+    stage('Push image') {
+        docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
+            app.push()
+        }
+    }
 }
 
 // pipeline {
