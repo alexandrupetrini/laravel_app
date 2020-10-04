@@ -101,10 +101,10 @@ node {
     def php_image='php:7.4-fpm-alpine'
 
     stages {
-        stage('Clone repository') {
-          /* Let's make sure we have the repository cloned to our workspace */
-          checkout scm
-        }
+        // stage('Clone repository') {
+        //   /* Let's make sure we have the repository cloned to our workspace */
+        //   checkout scm
+        // }
 
         stage("build app prod"){
             agent {
