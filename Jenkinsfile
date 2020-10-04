@@ -38,7 +38,7 @@ node {
         // }
 
         stage('Run images'){
-            def networkCMD="if [ -z \"`docker network ls -f name=${networkName} -q`\" ]; then docker network create ${networkName}; fi"
+            def networkCMD="if [ -z \"$(docker network ls -f name=${networkName} -q)\" ]; then docker network create ${networkName}; fi"
             sh "echo ${networkCMD}"
             // app.withRun("--network ${networkName}") { a ->
             //     sh "composer install"
