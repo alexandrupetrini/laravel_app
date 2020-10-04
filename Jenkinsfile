@@ -1,8 +1,12 @@
 node {
     def app
     def nginx
-    def nginx_prod='alexandrupetrini/nginx:1.18.0-alpine-production'
+    def mariadb
+    def phpmyadmin
     def app_prod='alexandrupetrini/php:7.4-fpm-alpine-production'
+    def nginx_prod='alexandrupetrini/nginx:1.18.0-alpine-production'
+    def mariadb_prod='alexandrupetrini/mariadb:10.5-production'
+    def phpmyadmin_prod='alexandrupetrini/phpmyadmin:5.0.2-apache-production'
 
     stage('Clone repository') {
         git credentialsId: 'github-credentials', url: 'git@github.com:alexandrupetrini/laravel_app.git'
@@ -30,6 +34,27 @@ node {
                 }
             }
 
+            stage('Build mariadb image') {
+                mariadb = docker.build("${mariadb_prod}", "-f ./Docker/mariadb/jenkins.Dockerfile ./Docker/mariadb")
+            }
+            stage('Push mariadb image') {
+                docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
+                    nginx.push()
+                }
+            }
+
+            stage('Build phpmyadmin image') {
+                phpmyadmin = docker.build("${phpmyadmin_prod}", "-f ./Docker/phpmyadmin/jenkins.Dockerfile ./Docker/phpmyadmin")
+            }
+            stage('Push phpmyadmin image') {
+                docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
+                    nginx.push()
+                }
+            }
         }
+
+        // stage('Run images'){
+
+        // }
     }
 }
