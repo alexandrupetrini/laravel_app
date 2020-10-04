@@ -11,7 +11,6 @@ node {
         checkout scm
     }
 
-    // stage("build and deploy laravel_app") {
     stage('Build images'){
         stage('Build app image') {
             app = docker.build("${app_prod}", "--build-arg PHP_ENV=production ./Docker/app")
