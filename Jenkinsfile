@@ -1,135 +1,45 @@
-node {
+pipeline {
+    agent none
     def app
     def nginx
     def nginx_prod='alexandrupetrini/nginx:1.18.0-alpine-production'
     def app_prod='alexandrupetrini/php:7.4-fpm-alpine-production'
-    stage('Clone repository') {
-        // git credentialsId: 'github-credentials', url: 'git@github.com:alexandrupetrini/laravel_app.git'
-        checkout scm
-    }
-    stage('Build app'){
-        parallel
-        stage('Build app') {
-            stage('Build image') {
-                app = docker.build("${app_prod}", "--build-arg PHP_ENV=production ./Docker/app")
-                app = docker.build("${app_prod}", "--build-arg PHP_ENV=production -f ./Docker/app/jenkins.Dockerfile ./Docker/app")
-            }
+    stages {
+        stage('Clone repository') {
+            // git credentialsId: 'github-credentials', url: 'git@github.com:alexandrupetrini/laravel_app.git'
+            checkout scm
+        }
 
-            stage('Push image') {
-                docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
-                    app.push()
+        stage("build and deploy laravel_app) {
+            stage('Build images'){
+                parallel{
+                    stages {
+                        stage('Build app') {
+                            stage('Build image') {
+                                app = docker.build("${app_prod}", "--build-arg PHP_ENV=production ./Docker/app")
+                                app = docker.build("${app_prod}", "--build-arg PHP_ENV=production -f ./Docker/app/jenkins.Dockerfile ./Docker/app")
+                            }
+
+                            stage('Push image') {
+                                docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
+                                    app.push()
+                                }
+                            }
+                        }
+                        stage('Build nginx'){
+                            stage('Build image') {
+                                nginx = docker.build("${nginx_prod}", "-f ./Docker/nginx/jenkins.Dockerfile ./Docker/nginx")
+                            }
+                            stage('Push image') {
+                                docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
+                                    nginx.push()
+                                }
+                            }
+                        }
+
+                    }
                 }
             }
         }
-        stage('Build nginx'){
-            stage('Build image') {
-                nginx = docker.build("${nginx_prod}", "-f ./Docker/nginx/jenkins.Dockerfile ./Docker/nginx")
-            }
-            stage('Push image') {
-                docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
-                    nginx.push()
-                }
-            }
-        }
     }
-    // stage('Deploy containers'){
-    //     stage('Deploy app'){
-    //         app.withRun
-    //     }
-
-    // }
 }
-
-// pipeline {
-//     agent none
-
-//     stages {
-//         stage('Clone repository') {
-//             /* Let's make sure we have the repository cloned to our workspace */
-
-//             checkout scm
-//         }
-//         stage("build and deploy laravel_app) {
-//             parallel {
-//                 stage("app") {
-//                     agent {
-//                         label "windows"
-//                     }
-//                     stages {
-//                         stage("build") {
-//                             steps {
-//                                 bat "run-build.bat"
-//                             }
-//                         }
-//                         stage("deploy") {
-//                             when {
-//                                 branch "master"
-//                             }
-//                             steps {
-//                                 bat "run-deploy.bat"
-//                             }
-//                         }
-//                     }
-//                 }
-
-//                 stage("linux") {
-//                     agent {
-//                         label "linux"
-//                     }
-//                     stages {
-//                         stage("build") {
-//                             steps {
-//                                 sh "./run-build.sh"
-//                             }
-//                         }
-//                         stage("deploy") {
-//                              when {
-//                                  branch "master"
-//                              }
-//                              steps {
-//                                 sh "./run-deploy.sh"
-//                             }
-//                         }
-//                     }
-//                 }
-//             }
-//         }
-//     }
-// }
-
-
-// node {
-//     agent none
-//     def app
-//     def app_prod='alexandrupetrini/php:7.4-fpm-alpine-production'
-//     def app_dev='alexandrupetrini/php:7.4-fpm-alpine-development'
-//     def php_image='php:7.4-fpm-alpine'
-
-//     stages {
-//         stage('Clone repository') {
-//           /* Let's make sure we have the repository cloned to our workspace */
-//           checkout scm
-//         }
-
-//         stage("build app prod"){
-//             agent {
-//                 docker true
-//             }
-//             app = docker.build("${php_image}", "-t ${app_prod} --build-args PHP_ENV=production ./Docker/app")
-//         }
-//     }
-// }
-// node {
-//     stage('Preparation') { // for display purposes
-//         // Get some code from a GitHub repository
-//         git credentialsId: 'github-credentials', url: 'git@github.com:alexandrupetrini/laravel_app.git'
-//     }
-//     stage('Build') {
-//         def app_prod='alexandrupetrini/php:7.4-fpm-alpine-production'
-//         def app_dev='alexandrupetrini/php:7.4-fpm-alpine-development'
-//         def php_image='php:7.4-fpm-alpine'
-//         // Run the maven build
-//         def app = docker.build("${php_image}", "-t ${app_prod} --build-args PHP_ENV=production ./Docker/app")
-//     }
-
-
