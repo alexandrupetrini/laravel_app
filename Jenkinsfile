@@ -32,16 +32,6 @@ node {
             }
         }
     }
-
-    // stage('Setup Network') {
-    //     try{
-    //         sh "docker network create ${networkName}"
-    //     }
-    //     catch(all) {
-    //         sh "echo 'Unable to create network'"
-    //     }
-    // }
-
 }
 
 pipeline{
@@ -61,6 +51,7 @@ pipeline{
             }
         }
         stage('deploy') {
+            agent none
             steps {
                 sh './deploy.sh'
             }
