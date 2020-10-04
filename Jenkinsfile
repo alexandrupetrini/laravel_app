@@ -46,14 +46,9 @@ node {
             }
         }
 
-        stage('Run images'){
-            stage('Run app'){
-                agent {
-                    docker { image '${app_prod}' }
-                }
-                steps {
-                    sh 'composer install'
-                }
+        stage('Run images') {
+            app.withRun('--name app --network app-network').inside{
+                sh 'echo here'
             }
         }
     }
