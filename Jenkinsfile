@@ -1,39 +1,29 @@
-// node {
-//     def app
+node {
+    def app
+    def app_prod='alexandrupetrini/php:7.4-fpm-alpine-production'
+    def app_dev='alexandrupetrini/php:7.4-fpm-alpine-development'
 
-//     stage('Clone repository') {
-//         /* Let's make sure we have the repository cloned to our workspace */
+    stage('Clone repository') {
+        /* Let's make sure we have the repository cloned to our workspace */
+        git credentialsId: 'github-credentials', url: 'git@github.com:alexandrupetrini/laravel_app.git'
 
-//         checkout scm
-//     }
+        checkout scm
+    }
 
-//     stage('Build image') {
-//         /* This builds the actual image; synonymous to
-//          * docker build on the command line */
+    stage('Build image') {
+        /* This builds the actual image; synonymous to
+         * docker build on the command line */
 
-//         app = docker.build("")
-//     }
+        app = docker.build("${app_prod}", "--build-arg PHP_ENV=production ./Docker/app")
+    }
 
-//     stage('Test image') {
-//         /* Ideally, we would run a test framework against our image.
-//          * For this example, we're using a Volkswagen-type approach ;-) */
-
-//         app.inside {
-//             sh 'echo "Tests passed"'
-//         }
-//     }
-
-//     stage('Push image') {
-//         /* Finally, we'll push the image with two tags:
-//          * First, the incremental build number from Jenkins
-//          * Second, the 'latest' tag.
-//          * Pushing multiple tags is cheap, as all the layers are reused. */
-//         docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
-//             app.push("${env.BUILD_NUMBER}")
-//             app.push("latest")
-//         }
-//     }
-// }
+    // stage('Push image') {
+    //     docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
+    //         app.push("${env.BUILD_NUMBER}")
+    //         app.push("latest")
+    //     }
+    // }
+}
 
 // pipeline {
 //     agent none
@@ -93,24 +83,38 @@
 // }
 
 
-node {
-    agent none
-    def app
-    def app_prod='alexandrupetrini/php:7.4-fpm-alpine-production'
-    def app_dev='alexandrupetrini/php:7.4-fpm-alpine-development'
-    def php_image='php:7.4-fpm-alpine'
+// node {
+//     agent none
+//     def app
+//     def app_prod='alexandrupetrini/php:7.4-fpm-alpine-production'
+//     def app_dev='alexandrupetrini/php:7.4-fpm-alpine-development'
+//     def php_image='php:7.4-fpm-alpine'
 
-    stages {
-        stage('Clone repository') {
-          /* Let's make sure we have the repository cloned to our workspace */
-          checkout scm
-        }
+//     stages {
+//         stage('Clone repository') {
+//           /* Let's make sure we have the repository cloned to our workspace */
+//           checkout scm
+//         }
 
-        stage("build app prod"){
-            agent {
-                docker true
-            }
-            app = docker.build("${php_image}", "-t ${app_prod} --build-args PHP_ENV=production ./Docker/app")
-        }
-    }
-}
+//         stage("build app prod"){
+//             agent {
+//                 docker true
+//             }
+//             app = docker.build("${php_image}", "-t ${app_prod} --build-args PHP_ENV=production ./Docker/app")
+//         }
+//     }
+// }
+// node {
+//     stage('Preparation') { // for display purposes
+//         // Get some code from a GitHub repository
+//         git credentialsId: 'github-credentials', url: 'git@github.com:alexandrupetrini/laravel_app.git'
+//     }
+//     stage('Build') {
+//         def app_prod='alexandrupetrini/php:7.4-fpm-alpine-production'
+//         def app_dev='alexandrupetrini/php:7.4-fpm-alpine-development'
+//         def php_image='php:7.4-fpm-alpine'
+//         // Run the maven build
+//         def app = docker.build("${php_image}", "-t ${app_prod} --build-args PHP_ENV=production ./Docker/app")
+//     }
+
+
