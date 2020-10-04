@@ -47,11 +47,11 @@ node {
         }
 
         stage('Run images'){
-            app.withRun("--network ${networkName}") { a ->
+            app.withRun("--network ${networkName} --name app") { a ->
                 app.inside("--link ${a.id}:db"){
                     sh "composer install"
                 }
-                // nginx.withRun("-p 80:8081 -p 443:8143 --network ${networkName}")
+                // nginx.withRun("-p 80:8081 -p 443:8143 --network ${networkName} --name nginx")
             }
         }
     }
