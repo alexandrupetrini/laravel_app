@@ -1,14 +1,14 @@
+def app
+def nginx
+def mariadb
+def phpmyadmin
+def app_prod ='alexandrupetrini/php:7.4-fpm-alpine-production'
+def nginx_prod ='alexandrupetrini/nginx:1.18.0-alpine-production'
+def mariadb_prod ='alexandrupetrini/mariadb:10.5-production'
+def phpmyadmin_prod ='alexandrupetrini/phpmyadmin:5.0.2-apache-production'
+def networkName = 'app-network'
 
 node {
-    def app
-    def nginx
-    def mariadb
-    def phpmyadmin
-    def app_prod ='alexandrupetrini/php:7.4-fpm-alpine-production'
-    def nginx_prod ='alexandrupetrini/nginx:1.18.0-alpine-production'
-    def mariadb_prod ='alexandrupetrini/mariadb:10.5-production'
-    def phpmyadmin_prod ='alexandrupetrini/phpmyadmin:5.0.2-apache-production'
-    def networkName = 'app-network'
 
     stage('Clone repository') {
         git credentialsId: 'github-credentials', url: 'git@github.com:alexandrupetrini/laravel_app.git'
@@ -51,15 +51,17 @@ node {
 pipeline{
     agent none
     stages {
-        stage('apache') {
+        stage('app') {
             agent {
                 docker {
-                    image 'httpd'
-                    args  '-p 80:80'
+                    image "${app_prod}"
+                    args  "--network ${networkName}"
                 }
             }
             steps {
-                sh 'echo true'
+                sh "composer install"
+                sh "npm install && npm run prod"
+                sh "php artisan key:generate"
             }
         }
     }
