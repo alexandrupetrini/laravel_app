@@ -55,7 +55,7 @@ pipeline{
             agent {
                 docker {
                     image "${app_prod}"
-                    args  "--network ${networkName}"
+                    args  "--network ${networkName} --name app"
                 }
             }
             steps {
@@ -63,6 +63,17 @@ pipeline{
                 sh "npm install && npm run prod"
                 sh "cp .env.production .env"
                 sh "php artisan key:generate"
+            }
+        }
+        stage('nginx') {
+            agent {
+                docker {
+                    image "${nginx_prod}"
+                    args  "--network ${networkName} --name nginx -p 80:8181 -p 443:8143"
+                }
+            }
+            steps {
+                echo done
             }
         }
     }
