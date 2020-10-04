@@ -1,11 +1,7 @@
 def app
 def nginx
-def mariadb
-def phpmyadmin
 def app_prod ='alexandrupetrini/php:7.4-fpm-alpine-production'
 def nginx_prod ='alexandrupetrini/nginx:1.18.0-alpine-production'
-def mariadb_prod ='alexandrupetrini/mariadb:10.5-production'
-def phpmyadmin_prod ='alexandrupetrini/phpmyadmin:5.0.2-apache-production'
 def networkName = 'app-network'
 
 node {
@@ -37,25 +33,24 @@ node {
         }
     }
 
-    stage('Setup Network') {
-        try{
-            sh "docker network create ${networkName}"
-        }
-        catch(all) {
-            sh "echo 'Unable to create network'"
-        }
-    }
+    // stage('Setup Network') {
+    //     try{
+    //         sh "docker network create ${networkName}"
+    //     }
+    //     catch(all) {
+    //         sh "echo 'Unable to create network'"
+    //     }
+    // }
 
 }
 
 pipeline{
     agent none
     stages {
-        stage('app') {
+        stage('build') {
             agent {
                 docker {
                     image "${app_prod}"
-                    args  "--network ${networkName} --name app"
                 }
             }
             steps {
@@ -65,15 +60,9 @@ pipeline{
                 sh "php artisan key:generate"
             }
         }
-        stage('nginx') {
-            agent {
-                docker {
-                    image "${nginx_prod}"
-                    args  "--network ${networkName} --name nginx -p 80:8181 -p 443:8143"
-                }
-            }
+        stage('deploy') {
             steps {
-                echo 'done'
+                sh './deploy.sh'
             }
         }
     }
