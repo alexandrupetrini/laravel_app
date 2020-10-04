@@ -49,13 +49,17 @@ node {
 }
 
 pipeline{
-   stages {
+    agent none
+    stages {
         stage('apache') {
             agent {
                 docker {
                     image 'httpd'
                     args  '-p 80:80'
                 }
+            }
+            steps {
+                sh 'echo true'
             }
         }
     }
