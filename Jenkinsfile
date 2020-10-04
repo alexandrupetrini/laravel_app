@@ -38,7 +38,7 @@ node {
         }
 
         stage('Run images'){
-            sh "if [ -z \"$(docker network ls -f name=${networkName} -q)\" ]; then docker network create ${networkName}; fi"
+            sh "if [ -z \"$(docker network ls -f name=\${networkName} -q)\" ]; then docker network create ${networkName}; fi"
             app.withRun("--network ${networkName}") { a ->
                 sh "composer install"
                 sh "npm install && npm run dev"
