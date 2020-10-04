@@ -48,7 +48,6 @@ node {
 
         stage('Run images') {
             docker.image("${app_prod}").withRun("--network ${networkName} --name app") { c ->
-                docker.image("${app_prod}").inside("--link ${c.id}:db") {
                     sh 'echo true'
                 }
                 // docker.image("${nginx_prod").inside("--link ${c.id}:db") {
