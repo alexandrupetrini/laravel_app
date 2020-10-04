@@ -47,7 +47,7 @@ node {
         }
 
         stage('Run images') {
-            app.withRun('--name app --network app-network').inside{
+            app.with('--name app --network app-network').inside{
                 sh 'php -version'
             }
         }
