@@ -93,13 +93,23 @@
 // }
 
 node {
-    stages {
-      stage('Clone repository') {
-          /* Let's make sure we have the repository cloned to our workspace */
+    agent none
+    def app
+    def app_prod='alexandrupetrini/php:7.4-fpm-alpine-production'
+    def app_dev='alexandrupetrini/php:7.4-fpm-alpine-development'
+    def php_image='php:7.4-fpm-alpine'
 
+    stages {
+        stage('Clone repository') {
+          /* Let's make sure we have the repository cloned to our workspace */
           checkout scm
-      }
-    def dockerfile = 'Dockerfile'
-    def app = docker.build("php:7.4-fpm-alpine", "-f ${dockerfile} ./Docker/app --build-args PHP_ENV=production")
+        }
+
+        stage("build app prod"){
+            agent {
+                docker true
+            }
+            app = docker.build("${php_image}", "-t ${app_prod} --build-args PHP_ENV=production ./Docker/app")
+        }
     }
 }
