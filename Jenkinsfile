@@ -2,12 +2,12 @@ def app_prod ='alexandrupetrini/php:7.4-fpm-alpine-production'
 def nginx_prod ='alexandrupetrini/nginx:1.18.0-alpine-production'
 def mariadb_prod ='alexandrupetrini/mariadb:10.5-production'
 def phpmyadmin_prod ='alexandrupetrini/phpmyadmin:5.0.2-apache-production'
-def networkName = "app-network"
+def networkName = 'app-network'
 
 def withDockerNetwork(Closure inner) {
     try {
         // networkId = UUID.randomUUID().toString()
-        // networkName = "app-network"
+        networkName = 'app-network'
         sh "docker network create ${networkName}"
         inner.call(networkName)
     } finally {
