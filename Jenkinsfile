@@ -52,7 +52,7 @@ pipeline{
             }
         }
         stage('deploy') {
-            agent none
+            agent any
             steps {
                 sh './deploy.sh'
             }
