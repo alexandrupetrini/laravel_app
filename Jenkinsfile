@@ -1,3 +1,14 @@
+def withDockerNetwork(Closure inner) {
+    try {
+        // networkId = UUID.randomUUID().toString()
+        // networkName = "app-network"
+        sh "docker network create ${networkName}"
+        inner.call(networkName)
+    } finally {
+        sh "docker network rm ${networkName}"
+    }
+}
+
 node {
     def app
     def nginx
@@ -8,17 +19,6 @@ node {
     def mariadb_prod ='alexandrupetrini/mariadb:10.5-production'
     def phpmyadmin_prod ='alexandrupetrini/phpmyadmin:5.0.2-apache-production'
     def networkName = "app-network"
-
-    def withDockerNetwork(Closure inner) {
-        try {
-            // networkId = UUID.randomUUID().toString()
-            // networkName = "app-network"
-            sh "docker network create ${networkName}"
-            inner.call(networkName)
-        } finally {
-            sh "docker network rm ${networkName}"
-        }
-    }
 
     stage('Clone repository') {
         git credentialsId: 'github-credentials', url: 'git@github.com:alexandrupetrini/laravel_app.git'
