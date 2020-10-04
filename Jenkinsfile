@@ -6,7 +6,7 @@ pipeline {
     def app_prod='alexandrupetrini/php:7.4-fpm-alpine-production'
     stages {
         stage('Clone repository') {
-            // git credentialsId: 'github-credentials', url: 'git@github.com:alexandrupetrini/laravel_app.git'
+            git credentialsId: 'github-credentials', url: 'git@github.com:alexandrupetrini/laravel_app.git'
             checkout scm
         }
 
