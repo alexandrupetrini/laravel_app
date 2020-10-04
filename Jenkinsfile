@@ -37,15 +37,21 @@ node {
         //     }
         // }
 
-        stage('Run images'){
-            def networkCMD="if [ -z \"$(docker network ls -f name=${networkName} -q)\" ]; then docker network create ${networkName}; fi"
-            sh "echo ${networkCMD}"
+        stage('Setup Network') {
+            try{
+                sh "docker network create ${networkName}"
+            }
+            catch(all) {
+                sh "echo 'Unable to create network'"
+            }
+        }
+        // stage('Run images'){
             // app.withRun("--network ${networkName}") { a ->
             //     sh "composer install"
             //     sh "npm install && npm run dev"
             //     sh "php artisan optimize && php artisan key:generate"
             //     nginx.withRun("-p 80:8081 -p 443:8143 --network ${networkName}")
             // }
-        }
+        // }
     }
 }
