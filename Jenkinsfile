@@ -16,48 +16,45 @@ node {
     }
 
     stage("build and deploy laravel_app") {
-        stage('Build images'){
-            stage('Build app image') {
-                app = docker.build("${app_prod}", "--build-arg PHP_ENV=production ./Docker/app")
-                app = docker.build("${app_prod}", "--build-arg PHP_ENV=production -f ./Docker/app/jenkins.Dockerfile ./Docker/app")
-            }
-            stage('Push app image') {
-                docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
-                    app.push()
-                }
-            }
+        // stage('Build images'){
+        //     stage('Build app image') {
+        //         app = docker.build("${app_prod}", "--build-arg PHP_ENV=production ./Docker/app")
+        //         app = docker.build("${app_prod}", "--build-arg PHP_ENV=production -f ./Docker/app/jenkins.Dockerfile ./Docker/app")
+        //     }
+        //     stage('Push app image') {
+        //         docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
+        //             app.push()
+        //         }
+        //     }
 
-            stage('Build nginx image') {
-                nginx = docker.build("${nginx_prod}", "-f ./Docker/nginx/jenkins.Dockerfile ./Docker/nginx")
-            }
-            stage('Push nginx image') {
-                docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
-                    nginx.push()
-                }
-            }
-        }
+        //     stage('Build nginx image') {
+        //         nginx = docker.build("${nginx_prod}", "-f ./Docker/nginx/jenkins.Dockerfile ./Docker/nginx")
+        //     }
+        //     stage('Push nginx image') {
+        //         docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-credentials') {
+        //             nginx.push()
+        //         }
+        //     }
+        // }
 
-        stage('Setup Network') {
-            try{
-                sh "docker network create ${networkName}"
-            }
-            catch(all) {
-                sh "echo 'Unable to create network'"
-            }
-        }
+        // stage('Setup Network') {
+        //     try{
+        //         sh "docker network create ${networkName}"
+        //     }
+        //     catch(all) {
+        //         sh "echo 'Unable to create network'"
+        //     }
+        // }
 
         stage('Run images') {
-
-            docker.image("${app_prod}").withRun("--network ${networkName} --name app") { c ->
-                    sh 'echo true'
+            stage('Run app'){
+                agent {
+                    docker {
+                        image "${app_prod}"
+                        args  "--name=app --network=${networkName}"
+                    }
+                }
             }
-                // docker.image("${nginx_prod").inside("--link ${c.id}:db") {
-                //     /*
-                //     * Run some tests which require MySQL, and assume that it is
-                //     * available on the host name `db`
-                //     */
-                //     sh 'make check'
-                // }
         }
     }
 }
