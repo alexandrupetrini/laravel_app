@@ -34,7 +34,6 @@ node {
     }
 }
 
-
 pipeline{
     agent none
     stages {
